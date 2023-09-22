@@ -55,6 +55,7 @@ class DocumentSource(str, Enum):
     FILE = "file"
     NOTION = "notion"
     ZULIP = "zulip"
+    ZENDESK = "zendesk"
     LINEAR = "linear"
 
 

@@ -14,6 +14,7 @@ import {
   JiraIcon,
   SlabIcon,
   NotionIcon,
+  ZendeskIcon,
   ZulipIcon,
   ProductboardIcon,
   LinearIcon,
@@ -162,6 +163,15 @@ export default async function AdminLayout({
                     </div>
                   ),
                   link: "/admin/connectors/bookstack",
+                },
+                {
+                  name: (
+                    <div className="flex">
+                      <ZendeskIcon size={16} />
+                      <div className="ml-1">Zendesk</div>
+                    </div>
+                  ),
+                  link: "/admin/connectors/zendesk",
                 },
                 {
                   name: (
