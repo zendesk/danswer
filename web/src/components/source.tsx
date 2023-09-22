@@ -13,6 +13,7 @@ import {
   ProductboardIcon,
   SlabIcon,
   SlackIcon,
+  ZendeskIcon,
   ZulipIcon,
 } from "./icons/icons";
 
@@ -89,6 +90,12 @@ export const getSourceMetadata = (sourceType: ValidSources): SourceMetadata => {
         icon: NotionIcon,
         displayName: "Notion",
         adminPageLink: "/admin/connectors/notion",
+      };
+    case "zendesk":
+      return {
+        icon: ZendeskIcon,
+        displayName: "Zendesk",
+        adminPageLink: "/admin/connectors/zendesk",
       };
     case "zulip":
       return {

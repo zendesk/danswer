@@ -19,6 +19,7 @@ export type ValidSources =
   | "slab"
   | "notion"
   | "guru"
+  | "zendesk"
   | "zulip"
   | "linear"
   | "file";
@@ -97,6 +98,8 @@ export interface GuruConfig {}
 export interface FileConfig {
   file_locations: string[];
 }
+
+export interface ZendeskConfig {}
 
 export interface ZulipConfig {
   realm_name: string;
@@ -186,6 +189,12 @@ export interface SlabCredentialJson {
 
 export interface NotionCredentialJson {
   notion_integration_token: string;
+}
+
+export interface ZendeskCredentialJson {
+  zendesk_base_url: string;
+  zendesk_username: string;
+  zendesk_password: string;
 }
 
 export interface ZulipCredentialJson {

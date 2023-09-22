@@ -17,6 +17,7 @@ const sources: Source[] = [
   { displayName: "Guru", internalName: "guru" },
   { displayName: "File", internalName: "file" },
   { displayName: "Notion", internalName: "notion" },
+  { displayName: "Zendesk", internalName: "zendesk" },
   { displayName: "Zulip", internalName: "zulip" },
   { displayName: "Linear", internalName: "linear" },
 ];
