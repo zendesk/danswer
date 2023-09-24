@@ -9,17 +9,11 @@ jobs:
     steps:
     - uses: zendesk/checkout@v3    
     - name: Push to ECR
-      uses: zendesk/build-image/.github/workflows/build.yml@v2
+      uses: zendesk/docker-build-multiarch@v1
       with:
-        image-name: "589470546847.dkr.ecr.us-west-2.amazonaws.com/compute-danswer-backend"
-        image-type: "dev"
+        image-name: "589470546847.dkr.ecr.us-west-2.amazonaws.com/compute-danswer-backend"        
         dockerfile: "./backend/Dockerfile"
         docker-args: ""
         working-directory: "./backend"
         additional-tag: ""
-        architectures: "[\"amd64\"]"
-        submodules: "false"
-        checkout-use-org-token: false
-        cache-from-previous-image: "true"
-        lfs: false
-        
+        architecture: "amd64"        
