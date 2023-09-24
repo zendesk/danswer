@@ -2,33 +2,23 @@ name: Build and Push Backend Images on Tagging
 
 on:
   push:
-    tags:
-      - '*'
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-
+  build:
+    runs-on: 'zendesk-docker'
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
+    - uses: zendesk/checkout@v3    
+    - uses: zendesk/build-image/.github/workflows/build.yml@v2
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_TOKEN }}
-
-    - name: Backend Image Docker Build and Push
-      uses: docker/build-push-action@v2
-      with:
-        context: ./backend
-        file: ./backend/Dockerfile
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: |
-          danswer/danswer-backend:${{ github.ref_name }}
-          danswer/danswer-backend:latest
+        image-name: "589470546847.dkr.ecr.us-west-2.amazonaws.com/compute-danswer-backend"
+        image-type: "dev"
+        dockerfile: "./backend/Dockerfile"
+        docker-args: ""
+        working-directory: "./backend"
+        additional-tag: ""
+        architectures: "[\"amd64\"]"
+        submodules: "false"
+        checkout-use-org-token: false
+        cache-from-previous-image: "true"
+        lfs: false
+        
