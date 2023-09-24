@@ -6,6 +6,8 @@ on:
 jobs:
   build:
     runs-on: 'zendesk-docker'
+    env:
+      ARCHITECTURE: "amd64"
     steps:
     - uses: zendesk/checkout@v3    
     - name: Push to ECR
