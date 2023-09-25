@@ -17,10 +17,12 @@ from danswer.utils.logger import setup_logger
 
 logger = setup_logger()
 
+
 class ZendeskConnector(LoadConnector, PollConnector):
+
     def __init__(
-        self,
-        batch_size: int = INDEX_BATCH_SIZE,
+            self,
+            batch_size: int = INDEX_BATCH_SIZE,
     ) -> None:
         self.batch_size = batch_size
         self.zendesk_client: ZendeskApiClient | None = None
@@ -35,24 +37,26 @@ class ZendeskConnector(LoadConnector, PollConnector):
 
     @staticmethod
     def _get_incremental_export(
-        zendesk_client: ZendeskApiClient,
-        endpoint: str,
-        key: str,
-        transformer: Callable[[dict], Document],
-        start: SecondsSinceUnixEpoch | None = None,
+            zendesk_client: ZendeskApiClient,
+            endpoint: str,
+            key: str,
+            transformer: Callable[[dict], Document],
+            start: SecondsSinceUnixEpoch,
     ) -> tuple[list[Document], SecondsSinceUnixEpoch]:
         doc_batch: list[Document] = []
-
-        params = {}
-
-        if start:
-            params["start_time"] = "{:.0f}".format(start)
-        else:
-            params["start_time"] = "0"
+        params = {
+            "start_time": "{:.0f}".format(start)
+        }
 
         batch = zendesk_client.get(endpoint, params=params)
-        logger.info("Retrieved {} from incremental {} export, start_time={}, end_time={}".format(batch.get("count", 0), key, start, batch.get("end_time", 0)))
-        for item in batch.get(key):
+        logger.info(
+            "Retrieved {} from incremental {} export, start_time={}, end_time={}".format(batch.get("count", 0), key,
+                                                                                         start,
+                                                                                         batch.get("end_time", 0)))
+        items = batch.get(key)
+        if not items:
+            raise RuntimeError("No {} key found in incremental export response".format(key))
+        for item in items:
             if item.get("draft", False) or len((item.get("body", "") or "").strip()) == 0:
                 continue
             doc_batch.append(transformer(item))
@@ -61,12 +65,13 @@ class ZendeskConnector(LoadConnector, PollConnector):
 
     @staticmethod
     def _article_to_document(
-        article: dict[str, Any],
+            article: dict[str, Any],
     ) -> Document:
         text = article.get("title", "") + "\n" + parse_html_page_basic(article.get("body", ""))
+        link = str(article.get("html_url"))
         return Document(
             id="article:" + str(article.get("id")),
-            sections=[Section(link=article.get("html_url"), text=text)],
+            sections=[Section(link=link, text=text)],
             source=DocumentSource.ZENDESK,
             semantic_identifier="Zendesk Help Centre: {}".format(article.get("title")),
             metadata={"type": "article", "updated_at": str(article.get("updated_at"))},
@@ -79,10 +84,12 @@ class ZendeskConnector(LoadConnector, PollConnector):
         return self.poll_source(None, None)
 
     def poll_source(
-        self, start: SecondsSinceUnixEpoch | None, end: SecondsSinceUnixEpoch | None
+            self, start: SecondsSinceUnixEpoch | None, end: SecondsSinceUnixEpoch | None
     ) -> GenerateDocumentsOutput:
         if self.zendesk_client is None:
             raise ConnectorMissingCredentialError("Zendesk")
+        if start is None:
+            start = SecondsSinceUnixEpoch(0)
         while True:
             doc_batch, end_time = self._get_incremental_export(
                 zendesk_client=self.zendesk_client,
