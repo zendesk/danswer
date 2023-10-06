@@ -1,10 +1,20 @@
 import json
-from slack_sdk.models.blocks import Block, SectionBlock, DividerBlock, InputBlock, ActionsBlock
-from slack_sdk.models.blocks import TextObject, PlainTextObject, Option, ConfirmObject, PlainTextInputElement
-from slack_sdk.models.blocks.block_elements import ButtonElement, NumberInputElement, StaticSelectElement
+
+from slack_sdk.models.blocks import ActionsBlock
+from slack_sdk.models.blocks import Block
+from slack_sdk.models.blocks import ConfirmObject
+from slack_sdk.models.blocks import DividerBlock
+from slack_sdk.models.blocks import InputBlock
+from slack_sdk.models.blocks import Option
+from slack_sdk.models.blocks import PlainTextInputElement
+from slack_sdk.models.blocks import PlainTextObject
+from slack_sdk.models.blocks import SectionBlock
+from slack_sdk.models.blocks import TextObject
+from slack_sdk.models.blocks.block_elements import ButtonElement
+from slack_sdk.models.blocks.block_elements import NumberInputElement
+from slack_sdk.models.blocks.block_elements import StaticSelectElement
 
 import danswer.bots.ask_compute.constants as constants
-
 from danswer.bots.ask_compute.logger import setup_logger
 logger = setup_logger("ask_compute_bot.block_builder", constants.LOG_LEVEL)
 

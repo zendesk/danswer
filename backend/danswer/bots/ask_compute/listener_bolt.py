@@ -1,20 +1,19 @@
 import json
+
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-import danswer.bots.ask_compute.constants as constants
 import danswer.bots.ask_compute.block_builder as block_builder
 import danswer.bots.ask_compute.confluence_helper as confluence_helper
+import danswer.bots.ask_compute.constants as constants
 from danswer.bots.ask_compute.gpt_helper import get_thread_summary
-
+from danswer.bots.ask_compute.logger import setup_logger
 from danswer.bots.slack.constants import DISLIKE_BLOCK_ACTION_ID
 from danswer.bots.slack.constants import LIKE_BLOCK_ACTION_ID
 from danswer.bots.slack.handlers.handle_feedback import handle_slack_feedback
 from danswer.bots.slack.handlers.handle_message import handle_message
-
-from danswer.bots.ask_compute.logger import setup_logger
 logger = setup_logger("ask_compute_bot", constants.LOG_LEVEL)
 
 app = App(token=constants.SLACK_BOT_TOKEN, logger=logger)

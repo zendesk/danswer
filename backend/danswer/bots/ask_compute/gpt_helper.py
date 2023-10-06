@@ -1,6 +1,9 @@
 import textwrap
+
 import requests
-from tenacity import retry, wait_random_exponential, stop_after_attempt
+from tenacity import retry
+from tenacity import stop_after_attempt
+from tenacity import wait_random_exponential
 
 import danswer.bots.ask_compute.constants as constants
 from danswer.bots.ask_compute.logger import setup_logger
