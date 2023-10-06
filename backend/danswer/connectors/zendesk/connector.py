@@ -12,8 +12,8 @@ from danswer.connectors.models import ConnectorMissingCredentialError
 from danswer.connectors.models import Document
 from danswer.connectors.models import Section
 from danswer.connectors.zendesk.client import ZendeskApiClient
-from danswer.utils.text_processing import parse_html_page_basic
 from danswer.utils.logger import setup_logger
+from danswer.utils.text_processing import parse_html_page_basic
 
 logger = setup_logger()
 

@@ -1,7 +1,7 @@
-import requests
 import time
-
 from typing import Any
+
+import requests
 
 class ZendeskApiClientRequestFailedError(ConnectionError):
     def __init__(self, status: int, error: str) -> None:
