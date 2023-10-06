@@ -12,12 +12,8 @@ import {
   NotionIcon,
   ProductboardIcon,
   SlabIcon,
-<<<<<<< HEAD
-  SlackIcon, ZendeskIcon,
-=======
   SlackIcon,
   ZendeskIcon,
->>>>>>> 8edf656022814ed366086218a5c3d45655d9a626
   ZulipIcon,
 } from "./icons/icons";
 
