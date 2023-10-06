@@ -24,12 +24,9 @@ services:
       - NUM_DOCUMENT_TOKENS_FED_TO_GENERATIVE_MODEL=${NUM_DOCUMENT_TOKENS_FED_TO_GENERATIVE_MODEL:-}
       - POSTGRES_HOST=relational_db
       - VESPA_HOST=index
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - DISABLE_AUTH=${DISABLE_AUTH:-True}
+      - AUTH_TYPE=${AUTH_TYPE:-disabled}
       - QA_TIMEOUT=${QA_TIMEOUT:-}
       - VALID_EMAIL_DOMAINS=${VALID_EMAIL_DOMAINS:-}
-      - OAUTH_TYPE=${OAUTH_TYPE:-google}
-      - OPENID_CONFIG_URL=${OPENID_CONFIG_URL:-}
       - GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID:-}
       - GOOGLE_OAUTH_CLIENT_SECRET=${GOOGLE_OAUTH_CLIENT_SECRET:-}
       - DISABLE_GENERATIVE_AI=${DISABLE_GENERATIVE_AI:-}
@@ -37,6 +34,17 @@ services:
       - API_TYPE_OPENAI=${API_TYPE_OPENAI:-}
       - API_VERSION_OPENAI=${API_VERSION_OPENAI:-}
       - AZURE_DEPLOYMENT_ID=${AZURE_DEPLOYMENT_ID:-}
+      # Don't change the NLP model configs unless you know what you're doing
+      - DOCUMENT_ENCODER_MODEL=${DOCUMENT_ENCODER_MODEL:-}
+      - NORMALIZE_EMBEDDINGS=${NORMALIZE_EMBEDDINGS:-}
+      - SIM_SCORE_RANGE_LOW=${SIM_SCORE_RANGE_LOW:-}
+      - SIM_SCORE_RANGE_HIGH=${SIM_SCORE_RANGE_HIGH:-}
+      - ASYM_QUERY_PREFIX=${ASYM_QUERY_PREFIX:-}
+      - ASYM_PASSAGE_PREFIX=${ASYM_PASSAGE_PREFIX:-}
+      - SKIP_RERANKING=${SKIP_RERANKING:-}
+      # Set to debug to get more fine-grained logs
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NOTION_CONNECTOR_ENABLE_RECURSIVE_PAGE_LOOKUP=${NOTION_CONNECTOR_ENABLE_RECURSIVE_PAGE_LOOKUP:-}
     volumes:
       - local_dynamic_storage:/home/storage
       - file_connector_tmp_storage:/home/file_connector_storage
@@ -67,10 +75,21 @@ services:
       - AZURE_DEPLOYMENT_ID=${AZURE_DEPLOYMENT_ID:-}
       - CONTINUE_ON_CONNECTOR_FAILURE=${CONTINUE_ON_CONNECTOR_FAILURE:-}
       - NUM_INDEXING_WORKERS=${NUM_INDEXING_WORKERS:-}
+      # Danswer SlackBot Configs
       - DANSWER_BOT_SLACK_APP_TOKEN=${DANSWER_BOT_SLACK_APP_TOKEN:-}
       - DANSWER_BOT_SLACK_BOT_TOKEN=${DANSWER_BOT_SLACK_BOT_TOKEN:-}
       - DANSWER_BOT_DISABLE_DOCS_ONLY_ANSWER=${DANSWER_BOT_DISABLE_DOCS_ONLY_ANSWER:-}
       - DANSWER_BOT_DISPLAY_ERROR_MSGS=${DANSWER_BOT_DISPLAY_ERROR_MSGS:-}
+      - DANSWER_BOT_ONLY_ANSWER_WHEN_SLACK_BOT_CONFIG_IS_PRESENT=${DANSWER_BOT_ONLY_ANSWER_WHEN_SLACK_BOT_CONFIG_IS_PRESENT:-}
+      # Don't change the NLP model configs unless you know what you're doing
+      - DOCUMENT_ENCODER_MODEL=${DOCUMENT_ENCODER_MODEL:-}
+      - NORMALIZE_EMBEDDINGS=${NORMALIZE_EMBEDDINGS:-}
+      - SIM_SCORE_RANGE_LOW=${SIM_SCORE_RANGE_LOW:-}
+      - SIM_SCORE_RANGE_HIGH=${SIM_SCORE_RANGE_HIGH:-}
+      - ASYM_QUERY_PREFIX=${ASYM_QUERY_PREFIX:-}
+      - ASYM_PASSAGE_PREFIX=${ASYM_PASSAGE_PREFIX:-}
+      - SKIP_RERANKING=${SKIP_RERANKING:-}
+      # Set to debug to get more fine-grained logs
       - LOG_LEVEL=${LOG_LEVEL:-info}
     volumes:
       - local_dynamic_storage:/home/storage
@@ -91,7 +110,6 @@ services:
     environment:
       - INTERNAL_URL=http://api_server:8080
       - WEB_DOMAIN=${WEB_DOMAIN:-}
-      - DISABLE_AUTH=${DISABLE_AUTH:-True}
       - OAUTH_NAME=${OAUTH_NAME:-}
   relational_db:
     image: postgres:15.2-alpine

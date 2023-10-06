@@ -21,6 +21,7 @@ export type ValidSources =
   | "guru"
   | "zulip"
   | "linear"
+  | "hubspot"
   | "file";
 export type ValidInputTypes = "load_state" | "poll" | "event";
 export type ValidStatuses =
@@ -56,6 +57,7 @@ export interface Connector<T> extends ConnectorBase<T> {
 
 export interface WebConfig {
   base_url: string;
+  web_connector_type?: "recursive" | "single" | "sitemap";
 }
 
 export interface GithubConfig {
@@ -105,6 +107,8 @@ export interface ZulipConfig {
 
 export interface NotionConfig {}
 
+export interface HubSpotConfig {}
+
 export interface IndexAttemptSnapshot {
   status: ValidStatuses | null;
   num_docs_indexed: number;
@@ -117,6 +121,8 @@ export interface ConnectorIndexingStatus<
   ConnectorConfigType,
   ConnectorCredentialType
 > {
+  cc_pair_id: number;
+  name: string | null;
   connector: Connector<ConnectorConfigType>;
   credential: Credential<ConnectorCredentialType>;
   public_doc: boolean;
@@ -133,7 +139,7 @@ export interface ConnectorIndexingStatus<
 // CREDENTIALS
 export interface CredentialBase<T> {
   credential_json: T;
-  public_doc: boolean;
+  is_admin: boolean;
 }
 
 export interface Credential<T> extends CredentialBase<T> {
@@ -201,6 +207,10 @@ export interface LinearCredentialJson {
   linear_api_key: string;
 }
 
+export interface HubSpotCredentialJson {
+  hubspot_access_token: string;
+}
+
 // DELETION
 
 export interface DeletionAttemptSnapshot {
@@ -209,4 +219,44 @@ export interface DeletionAttemptSnapshot {
   status: ValidStatuses;
   error_msg?: string;
   num_docs_deleted: number;
+}
+
+// DOCUMENT SETS
+export interface CCPairDescriptor<ConnectorType, CredentialType> {
+  id: number;
+  name: string | null;
+  connector: Connector<ConnectorType>;
+  credential: Credential<CredentialType>;
+}
+
+export interface DocumentSet {
+  id: number;
+  name: string;
+  description: string;
+  cc_pair_descriptors: CCPairDescriptor<any, any>[];
+  is_up_to_date: boolean;
+}
+
+// SLACK BOT CONFIGS
+
+export type AnswerFilterOption =
+  | "well_answered_postfilter"
+  | "questionmark_prefilter";
+
+export interface ChannelConfig {
+  channel_names: string[];
+  respond_tag_only?: boolean;
+  respond_team_member_list?: string[];
+  answer_filters?: AnswerFilterOption[];
+}
+
+export interface SlackBotConfig {
+  id: number;
+  document_sets: DocumentSet[];
+  channel_config: ChannelConfig;
+}
+
+export interface SlackBotTokens {
+  bot_token: string;
+  app_token: string;
 }

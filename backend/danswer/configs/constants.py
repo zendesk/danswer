@@ -11,7 +11,8 @@ SEMANTIC_IDENTIFIER = "semantic_identifier"
 SECTION_CONTINUATION = "section_continuation"
 EMBEDDINGS = "embeddings"
 ALLOWED_USERS = "allowed_users"
-ALLOWED_GROUPS = "allowed_groups"
+ACCESS_CONTROL_LIST = "access_control_list"
+DOCUMENT_SETS = "document_sets"
 METADATA = "metadata"
 MATCH_HIGHLIGHTS = "match_highlights"
 # stored in the `metadata` of a chunk. Used to signify that this chunk should
@@ -20,11 +21,13 @@ MATCH_HIGHLIGHTS = "match_highlights"
 IGNORE_FOR_QA = "ignore_for_qa"
 GEN_AI_API_KEY_STORAGE_KEY = "genai_api_key"
 PUBLIC_DOC_PAT = "PUBLIC"
+PUBLIC_DOCUMENT_SET = "__PUBLIC"
 QUOTE = "quote"
 BOOST = "boost"
 SCORE = "score"
 ID_SEPARATOR = ":;:"
 DEFAULT_BOOST = 0
+SESSION_KEY = "session"
 
 # Prompt building constants:
 GENERAL_SEP_PAT = "\n-----\n"
@@ -56,6 +59,7 @@ class DocumentSource(str, Enum):
     NOTION = "notion"
     ZULIP = "zulip"
     LINEAR = "linear"
+    HUBSPOT = "hubspot"
 
 
 class DocumentIndexType(str, Enum):
@@ -76,6 +80,14 @@ class DanswerGenAIModel(str, Enum):
     HUGGINGFACE_CHAT = "huggingface-client-chat-completion"
     REQUEST = "request-completion"
     TRANSFORMERS = "transformers"
+
+
+class AuthType(str, Enum):
+    DISABLED = "disabled"
+    BASIC = "basic"
+    GOOGLE_OAUTH = "google_oauth"
+    OIDC = "oidc"
+    SAML = "saml"
 
 
 class ModelHostType(str, Enum):

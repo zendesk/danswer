@@ -21,15 +21,19 @@ from danswer.db.chat import set_latest_chat_message
 from danswer.db.chat import update_chat_session
 from danswer.db.chat import verify_parent_exists
 from danswer.db.engine import get_session
+from danswer.db.feedback import create_chat_message_feedback
 from danswer.db.models import ChatMessage
 from danswer.db.models import User
 from danswer.direct_qa.interfaces import DanswerAnswerPiece
+from danswer.llm.utils import get_default_llm_tokenizer
 from danswer.secondary_llm_flows.chat_helpers import get_new_chat_name
+from danswer.server.models import ChatFeedbackRequest
 from danswer.server.models import ChatMessageDetail
 from danswer.server.models import ChatMessageIdentifier
 from danswer.server.models import ChatRenameRequest
+from danswer.server.models import ChatSession
 from danswer.server.models import ChatSessionDetailResponse
-from danswer.server.models import ChatSessionIdsResponse
+from danswer.server.models import ChatSessionsResponse
 from danswer.server.models import CreateChatMessageRequest
 from danswer.server.models import CreateChatSessionID
 from danswer.server.models import RegenerateMessageRequest
@@ -48,7 +52,7 @@ router = APIRouter(prefix="/chat")
 def get_user_chat_sessions(
     user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
-) -> ChatSessionIdsResponse:
+) -> ChatSessionsResponse:
     user_id = user.id if user is not None else None
 
     # Don't included deleted chats, even if soft delete only
@@ -56,7 +60,16 @@ def get_user_chat_sessions(
         user_id=user_id, deleted=False, db_session=db_session
     )
 
-    return ChatSessionIdsResponse(sessions=[chat.id for chat in chat_sessions])
+    return ChatSessionsResponse(
+        sessions=[
+            ChatSession(
+                id=chat.id,
+                name=chat.description,
+                time_created=chat.time_created.isoformat(),
+            )
+            for chat in chat_sessions
+        ]
+    )
 
 
 @router.get("/get-chat-session/{session_id}")
@@ -152,6 +165,25 @@ def delete_chat_session_by_id(
     delete_chat_session(user_id, session_id, db_session)
 
 
+@router.post("/create-chat-message-feedback")
+def create_chat_feedback(
+    feedback: ChatFeedbackRequest,
+    user: User | None = Depends(current_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    user_id = user.id if user else None
+
+    create_chat_message_feedback(
+        chat_session_id=feedback.chat_session_id,
+        message_number=feedback.message_number,
+        edit_number=feedback.edit_number,
+        user_id=user_id,
+        db_session=db_session,
+        is_positive=feedback.is_positive,
+        feedback_text=feedback.feedback_text,
+    )
+
+
 def _create_chat_chain(
     chat_session_id: int,
     db_session: Session,
@@ -211,6 +243,8 @@ def handle_new_chat_message(
     parent_edit_number = chat_message.parent_edit_number
     user_id = user.id if user is not None else None
 
+    llm_tokenizer = get_default_llm_tokenizer()
+
     chat_session = fetch_chat_session_by_id(chat_session_id, db_session)
     persona = (
         fetch_persona_by_id(chat_message.persona_id, db_session)
@@ -250,6 +284,7 @@ def handle_new_chat_message(
         message_number=message_number,
         parent_edit_number=parent_edit_number,
         message=message_content,
+        token_count=len(llm_tokenizer(message_content)),
         message_type=MessageType.USER,
         db_session=db_session,
     )
@@ -268,7 +303,10 @@ def handle_new_chat_message(
     @log_generator_function_time()
     def stream_chat_tokens() -> Iterator[str]:
         tokens = llm_chat_answer(
-            messages=mainline_messages, persona=persona, user_id=user_id
+            messages=mainline_messages,
+            persona=persona,
+            user_id=user_id,
+            tokenizer=llm_tokenizer,
         )
         llm_output = ""
         for token in tokens:
@@ -280,6 +318,7 @@ def handle_new_chat_message(
             message_number=message_number + 1,
             parent_edit_number=new_message.edit_number,
             message=llm_output,
+            token_count=len(llm_tokenizer(llm_output)),
             message_type=MessageType.ASSISTANT,
             db_session=db_session,
         )
@@ -300,6 +339,8 @@ def regenerate_message_given_parent(
     message_number = parent_message.message_number
     edit_number = parent_message.edit_number
     user_id = user.id if user is not None else None
+
+    llm_tokenizer = get_default_llm_tokenizer()
 
     chat_message = fetch_chat_message(
         chat_session_id=chat_session_id,
@@ -344,7 +385,10 @@ def regenerate_message_given_parent(
     @log_generator_function_time()
     def stream_regenerate_tokens() -> Iterator[str]:
         tokens = llm_chat_answer(
-            messages=mainline_messages, persona=persona, user_id=user_id
+            messages=mainline_messages,
+            persona=persona,
+            user_id=user_id,
+            tokenizer=llm_tokenizer,
         )
         llm_output = ""
         for token in tokens:
@@ -356,6 +400,7 @@ def regenerate_message_given_parent(
             message_number=message_number + 1,
             parent_edit_number=edit_number,
             message=llm_output,
+            token_count=len(llm_tokenizer(llm_output)),
             message_type=MessageType.ASSISTANT,
             db_session=db_session,
         )

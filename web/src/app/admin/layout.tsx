@@ -19,9 +19,11 @@ import {
   LinearIcon,
   UsersIcon,
   ThumbsUpIcon,
+  HubSpotIcon,
+  BookmarkIcon,
+  CPUIcon,
 } from "@/components/icons/icons";
-import { DISABLE_AUTH } from "@/lib/constants";
-import { getCurrentUserSS } from "@/lib/userSS";
+import { getAuthDisabledSS, getCurrentUserSS } from "@/lib/userSS";
 import { redirect } from "next/navigation";
 
 export default async function AdminLayout({
@@ -29,9 +31,12 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let user = null;
-  if (!DISABLE_AUTH) {
-    user = await getCurrentUserSS();
+  const [authDisabled, user] = await Promise.all([
+    getAuthDisabledSS(),
+    getCurrentUserSS(),
+  ]);
+
+  if (!authDisabled) {
     if (!user) {
       return redirect("/auth/login");
     }
@@ -43,7 +48,7 @@ export default async function AdminLayout({
   return (
     <div>
       <Header user={user} />
-      <div className="bg-gray-900 pt-8 flex">
+      <div className="bg-gray-900 pt-8 pb-8 flex">
         <Sidebar
           title="Connector"
           collections={[
@@ -190,6 +195,15 @@ export default async function AdminLayout({
                   ),
                   link: "/admin/connectors/file",
                 },
+                {
+                  name: (
+                    <div className="flex">
+                      <HubSpotIcon size={16} />
+                      <div className="ml-1">HubSpot</div>
+                    </div>
+                  ),
+                  link: "/admin/connectors/hubspot",
+                },
               ],
             },
             {
@@ -226,11 +240,34 @@ export default async function AdminLayout({
                 {
                   name: (
                     <div className="flex">
+                      <BookmarkIcon size={18} />
+                      <div className="ml-1">Document Sets</div>
+                    </div>
+                  ),
+                  link: "/admin/documents/sets",
+                },
+                {
+                  name: (
+                    <div className="flex">
                       <ThumbsUpIcon size={18} />
                       <div className="ml-1">Feedback</div>
                     </div>
                   ),
                   link: "/admin/documents/feedback",
+                },
+              ],
+            },
+            {
+              name: "Bots",
+              items: [
+                {
+                  name: (
+                    <div className="flex">
+                      <CPUIcon size={18} />
+                      <div className="ml-1">Slack Bot</div>
+                    </div>
+                  ),
+                  link: "/admin/bot",
                 },
               ],
             },

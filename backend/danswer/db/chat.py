@@ -13,6 +13,7 @@ from danswer.configs.constants import MessageType
 from danswer.db.models import ChatMessage
 from danswer.db.models import ChatSession
 from danswer.db.models import Persona
+from danswer.db.models import ToolInfo
 
 
 def fetch_chat_sessions_by_user(
@@ -186,6 +187,7 @@ def create_new_chat_message(
     chat_session_id: int,
     message_number: int,
     message: str,
+    token_count: int,
     parent_edit_number: int | None,
     message_type: MessageType,
     db_session: Session,
@@ -211,6 +213,7 @@ def create_new_chat_message(
         parent_edit_number=parent_edit_number,
         edit_number=new_edit_number,
         message=message,
+        token_count=token_count,
         message_type=message_type,
     )
 
@@ -259,15 +262,16 @@ def fetch_persona_by_id(persona_id: int, db_session: Session) -> Persona:
     return persona
 
 
-def create_persona(
+def upsert_persona(
     persona_id: int | None,
     name: str,
     retrieval_enabled: bool,
     system_text: str | None,
-    tools_text: str | None,
+    tools: list[ToolInfo] | None,
     hint_text: str | None,
     default_persona: bool,
     db_session: Session,
+    commit: bool = True,
 ) -> Persona:
     persona = db_session.query(Persona).filter_by(id=persona_id).first()
 
@@ -275,7 +279,7 @@ def create_persona(
         persona.name = name
         persona.retrieval_enabled = retrieval_enabled
         persona.system_text = system_text
-        persona.tools_text = tools_text
+        persona.tools = tools
         persona.hint_text = hint_text
         persona.default_persona = default_persona
     else:
@@ -284,12 +288,16 @@ def create_persona(
             name=name,
             retrieval_enabled=retrieval_enabled,
             system_text=system_text,
-            tools_text=tools_text,
+            tools=tools,
             hint_text=hint_text,
             default_persona=default_persona,
         )
         db_session.add(persona)
 
-    db_session.commit()
+    if commit:
+        db_session.commit()
+    else:
+        # flush the session so that the persona has an ID
+        db_session.flush()
 
     return persona
