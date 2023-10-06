@@ -3,6 +3,7 @@ from typing import Any
 
 import requests
 
+
 class ZendeskApiClientRequestFailedError(ConnectionError):
     def __init__(self, status: int, error: str) -> None:
         super().__init__(
@@ -10,6 +11,7 @@ class ZendeskApiClientRequestFailedError(ConnectionError):
                 status=status, error=error
             )
         )
+
 
 class ZendeskApiClient:
     def __init__(
@@ -25,10 +27,10 @@ class ZendeskApiClient:
 
     def get(self, endpoint: str, params: dict[str, str]) -> dict[str, Any]:
         url: str = self._build_url(endpoint)
-        headers = {
-            "Accept": "application/json"
-        }
-        response = requests.get(url, headers=headers, auth=(self.username, self.password), params=params)
+        headers = {"Accept": "application/json"}
+        response = requests.get(
+            url, headers=headers, auth=(self.username, self.password), params=params
+        )
 
         try:
             json = response.json()
@@ -52,4 +54,4 @@ class ZendeskApiClient:
         return json
 
     def _build_url(self, endpoint: str) -> str:
-        return self.base_url.rstrip("/") + '/' + endpoint.lstrip("/")
+        return self.base_url.rstrip("/") + "/" + endpoint.lstrip("/")
