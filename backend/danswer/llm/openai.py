@@ -1,8 +1,10 @@
 import os
 from typing import Any
+from typing import cast
 
 from langchain.chat_models.openai import ChatOpenAI
 
+from danswer.configs.model_configs import GEN_AI_TEMPERATURE
 from danswer.llm.llm import LangChainChatLLM
 from danswer.llm.utils import should_be_verbose
 
@@ -14,6 +16,7 @@ class OpenAIGPT(LangChainChatLLM):
         max_output_tokens: int,
         timeout: int,
         model_version: str,
+        temperature: float = GEN_AI_TEMPERATURE,
         *args: list[Any],
         **kwargs: dict[str, Any]
     ):
@@ -22,14 +25,16 @@ class OpenAIGPT(LangChainChatLLM):
         # server from starting up
         if not api_key:
             api_key = os.environ.get("OPENAI_API_KEY") or "dummy_api_key"
+
         self._llm = ChatOpenAI(
             model=model_version,
             openai_api_key=api_key,
+            # Prefer using None which is the default value, endpoint could be empty string
+            openai_api_base=cast(str, kwargs.get("endpoint")) or None,
             max_tokens=max_output_tokens,
-            temperature=0,
+            temperature=temperature,
             request_timeout=timeout,
             model_kwargs={
-                "top_p": 1,
                 "frequency_penalty": 0,
                 "presence_penalty": 0,
             },
