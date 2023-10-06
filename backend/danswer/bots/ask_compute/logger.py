@@ -1,5 +1,6 @@
 import logging
 
+
 def get_log_level_from_str(log_level_str: str) -> int:
     log_level_dict = {
         "CRITICAL": logging.CRITICAL,
@@ -12,8 +13,10 @@ def get_log_level_from_str(log_level_str: str) -> int:
 
     return log_level_dict.get(log_level_str.upper(), logging.INFO)
 
+
 def setup_logger(
-    name: str = __name__, log_level_str: str = "info", 
+    name: str = __name__,
+    log_level_str: str = "info",
 ) -> logging.LoggerAdapter:
     log_level = get_log_level_from_str(log_level_str)
     logger = logging.getLogger(name)
