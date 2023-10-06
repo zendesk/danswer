@@ -203,9 +203,9 @@ const GoogleDriveConnectorManagement = ({
               })(values)}
               <BooleanFormField
                 name="include_shared"
-                label="Include Shared Files"
+                label="Include Shared Files + Shared Drives"
                 subtext={
-                  "If checked, then we will also index all documents shared with you. " +
+                  "If checked, then we will also index all documents + drives shared with you. " +
                   "If this is combined with folder paths, then we will only index documents " +
                   "that match both criteria."
                 }
@@ -237,12 +237,7 @@ const GoogleDriveConnectorManagement = ({
             follow_shortcuts: false,
           }}
           refreshFreq={10 * 60} // 10 minutes
-          onSubmit={async (isSuccess, responseJson) => {
-            if (isSuccess && responseJson) {
-              await linkCredential(responseJson.id, liveCredential.id);
-              mutate("/api/manage/admin/connector/indexing-status");
-            }
-          }}
+          credentialId={liveCredential.id}
         />
       </div>
     </div>
@@ -326,7 +321,8 @@ const Main = () => {
     | Credential<GoogleDriveCredentialJson>
     | undefined = credentialsData.find(
     (credential) =>
-      credential.credential_json?.google_drive_tokens && credential.public_doc
+      credential.credential_json?.google_drive_tokens &&
+      credential.user_id === null
   );
   const googleDriveServiceAccountCredential:
     | Credential<GoogleDriveServiceAccountCredentialJson>
