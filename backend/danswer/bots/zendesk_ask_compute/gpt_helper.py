@@ -8,7 +8,7 @@ from tenacity import wait_random_exponential
 import danswer.bots.zendesk_ask_compute.constants as constants
 from danswer.bots.zendesk_ask_compute.logger import setup_logger
 
-logger = setup_logger("zendesk_ask_compute_bot.gpt_helper", constants.LOG_LEVEL)
+logger = setup_logger(constants.MODULE_NAME, constants.LOG_LEVEL)
 
 
 @retry(wait=wait_random_exponential(multiplier=1, max=40), stop=stop_after_attempt(3))

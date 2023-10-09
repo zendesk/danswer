@@ -97,6 +97,7 @@ services:
       - ZENDESK_ASK_COMPUTE_BOT_OPENAI_KEY=${ZENDESK_ASK_COMPUTE_BOT_OPENAI_KEY:-}
       - ZENDESK_ASK_COMPUTE_BOT_CONFLUENCE_API=${ZENDESK_ASK_COMPUTE_BOT_CONFLUENCE_API:-}
       - ZENDESK_ASK_COMPUTE_BOT_CONFLUENCE_USER=${ZENDESK_ASK_COMPUTE_BOT_CONFLUENCE_USER:-}
+      - ZENDESK_ASK_COMPUTE_BOT_LOG_LEVEL=${ZENDESK_ASK_COMPUTE_BOT_LOG_LEVEL:-info}
     volumes:
       - local_dynamic_storage:/home/storage
       - file_connector_tmp_storage:/home/file_connector_storage

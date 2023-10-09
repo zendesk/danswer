@@ -17,7 +17,7 @@ from slack_sdk.models.blocks.block_elements import StaticSelectElement
 import danswer.bots.zendesk_ask_compute.constants as constants
 from danswer.bots.zendesk_ask_compute.logger import setup_logger
 
-logger = setup_logger("zendesk_ask_compute_bot.block_builder", constants.LOG_LEVEL)
+logger = setup_logger(constants.MODULE_NAME, constants.LOG_LEVEL)
 
 
 def convert_blocks_to_dict(blocks: list[Block]) -> list[dict]:

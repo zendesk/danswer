@@ -15,7 +15,7 @@ from danswer.bots.slack.constants import LIKE_BLOCK_ACTION_ID
 from danswer.bots.slack.handlers.handle_feedback import handle_slack_feedback
 from danswer.bots.slack.handlers.handle_message import handle_message
 
-logger = setup_logger("zendesk_ask_compute_bot", constants.LOG_LEVEL)
+logger = setup_logger(constants.MODULE_NAME, constants.LOG_LEVEL)
 
 app = App(token=constants.SLACK_BOT_TOKEN, logger=logger)
 

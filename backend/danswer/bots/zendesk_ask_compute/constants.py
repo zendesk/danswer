@@ -22,3 +22,5 @@ SUMMARY_SECTIONS = [
 CONFLUENCE_SPACE_ID = "5871600340"  # TODO: dev only, yuming's personal space
 CONFLUENCE_PARENT_PAGE_ID = "5920000102"  # TODO: dev only
 CONFLUENCE_BASE_URL = "https://zendesk.atlassian.net/wiki"
+
+MODULE_NAME = "zendesk_ask_compute_bot"
