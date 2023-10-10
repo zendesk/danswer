@@ -230,7 +230,7 @@ def build_final_message_blocks(block_data: dict) -> list[SectionBlock]:
         SectionBlock(
             text=TextObject(
                 type="mrkdwn",
-                text="*The content of this thread has been compiled into a technical summary and uploaded to our knowledge base.*",
+                text="*The content of this thread has been compiled into a technical summary and uploaded to our knowledge base.*", # noqa: E501
             )
         ),
         SectionBlock(
