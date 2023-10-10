@@ -1,6 +1,0 @@
-slack-sdk==3.22.0
-slack-bolt==1.18.0
-requests==2.31.0
-tenacity==8.2.3
-tiktoken==0.5.1
-Markdown==3.4.4

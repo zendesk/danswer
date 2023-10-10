@@ -44,8 +44,6 @@ rfc3986==1.5.0
 # need to pin `safetensors` version, since the latest versions requires
 # building from source using Rust
 safetensors==0.3.1
-torch==2.0.1 # Pin pytorch to this version as 2.1.0 is not compatible with 3.11.4-slim-bookworm
-torchvision==0.15.2
 sentence-transformers==2.2.2 # [requires: torch>=1.6.0] and [requires: torchvision]
 slack-sdk==3.22.0
 SQLAlchemy[mypy]==2.0.15
@@ -60,4 +58,5 @@ zulip==0.8.2
 slack-bolt==1.18.0
 tenacity==8.2.3
 Markdown==3.4.4
+types-Markdown==3.5.0.0
 hubspot-api-client==8.1.0

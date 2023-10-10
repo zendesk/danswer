@@ -1,5 +1,7 @@
 import json
+from collections.abc import Sequence
 
+from requests import Response
 from slack_sdk.models.blocks import ActionsBlock
 from slack_sdk.models.blocks import Block
 from slack_sdk.models.blocks import ConfirmObject
@@ -20,7 +22,7 @@ from danswer.bots.zendesk_ask_compute.logger import setup_logger
 logger = setup_logger(constants.MODULE_NAME, constants.LOG_LEVEL)
 
 
-def convert_blocks_to_dict(blocks: list[Block]) -> list[dict]:
+def convert_blocks_to_dict(blocks: Sequence[Block]) -> list[dict]:
     """
     Utility function to convert an arry of Block objects to JSON-compatible, Slack-API-valid dictionaries
     """
@@ -67,17 +69,16 @@ def build_modal_config_blocks(block_data: dict) -> list[dict]:
             ),
             InputBlock(
                 block_id="input_model_temperature",
-                label=TextObject(
-                    type="plain_text", text=":robot_face: Model temperature"
+                label=PlainTextObject(
+                    text=":robot_face: Model temperature", emoji=True
                 ),
-                hint=TextObject(
-                    type="plain_text",
-                    text="Model sampling temperature, between 0.0 and 1.0.\nHigher values make the output more random, while lower values give more deterministic result.",
+                hint=PlainTextObject(
+                    text="Model sampling temperature, between 0.0 and 1.0.\nHigher values make the output more random, while lower values give more deterministic result.",  # noqa: E501
                 ),
                 element=NumberInputElement(
                     action_id="model_temperature",
                     is_decimal_allowed=True,
-                    initial_value=0.5,
+                    initial_value=0.0,
                     min_value=0.0,
                     max_value=1.0,
                 ),
@@ -100,7 +101,7 @@ def build_modal_config_blocks(block_data: dict) -> list[dict]:
     )
 
 
-def build_loading_blocks(text) -> list[dict]:
+def build_loading_blocks(text: str) -> list[dict]:
     return convert_blocks_to_dict(
         [SectionBlock(text=TextObject(type="mrkdwn", text=f":spinner: {text}"))]
     )
@@ -185,41 +186,57 @@ def build_summary_edit_blocks(block_data: dict) -> list[dict]:
     return blocks
 
 
-def build_confluence_api_response_blocks(block_data: dict) -> list[dict]:
+def build_confluence_api_response_blocks(block_data: Response) -> list[dict]:
     blocks = []
     response = json.loads(block_data.text)
     if block_data.status_code == 200:
         blocks += [
-            SectionBlock(type="mrkdwn", text="✅ *Summary uploaded to Confluence.*"),
             SectionBlock(
-                type="mrkdwn",
-                text=f"Link to the page: <{constants.CONFLUENCE_BASE_URL}{response.get('_links').get('webui')}>",
+                text=TextObject(
+                    type="mrkdwn", text="✅ *Summary uploaded to Confluence.*"
+                )
+            ),
+            SectionBlock(
+                text=TextObject(
+                    type="mrkdwn",
+                    text=f"Link to the page: <{constants.CONFLUENCE_BASE_URL}{response.get('_links').get('webui')}>",
+                )
             ),
         ]
     else:
         blocks += [
-            SectionBlock(type="mrkdwn", text="❌ *Failed to upload to Confluence.*"),
             SectionBlock(
-                type="mrkdwn",
-                text=f"```{json.dumps(response, sort_keys=True, indent=4, separators=(',', ': '))}```",
+                text=TextObject(
+                    type="mrkdwn", text="❌ *Failed to upload to Confluence.*"
+                )
+            ),
+            SectionBlock(
+                text=TextObject(
+                    type="mrkdwn",
+                    text=f"```{json.dumps(response, sort_keys=True, indent=4, separators=(',', ': '))}```",
+                )
             ),
         ]
     return convert_blocks_to_dict(blocks)
 
 
-def build_final_message_blocks(block_data: dict) -> list[dict]:
+def build_final_message_blocks(block_data: dict) -> list[SectionBlock]:
     """
     Build the final message to post to the thread to confirm it has been summarised
     """
     return [
-        SectionBlock(type="mrkdwn", text=" "),
-        SectionBlock(type="mrkdwn", text="🎉"),
+        SectionBlock(text=TextObject(type="mrkdwn", text=" ")),
+        SectionBlock(text=TextObject(type="mrkdwn", text="🎉")),
         SectionBlock(
-            type="mrkdwn",
-            text="*The content of this thread has been compiled into a technical summary and uploaded to our knowledge base.*",
+            text=TextObject(
+                type="mrkdwn",
+                text="*The content of this thread has been compiled into a technical summary and uploaded to our knowledge base.*",
+            )
         ),
         SectionBlock(
-            type="mrkdwn",
-            text=f"Link to the technical summary: <{block_data.get('link')}|{block_data.get('title')}>",
+            text=TextObject(
+                type="mrkdwn",
+                text=f"Link to the technical summary: <{block_data.get('link')}|{block_data.get('title')}>",
+            )
         ),
     ]

@@ -1,9 +1,11 @@
 import json
 import re
+from re import Match
 
 import markdown
 import requests
 from requests.auth import HTTPBasicAuth
+from requests.models import Response
 from tenacity import retry
 from tenacity import stop_after_attempt
 from tenacity import wait_random_exponential
@@ -15,17 +17,13 @@ logger = setup_logger(constants.MODULE_NAME, constants.LOG_LEVEL)
 
 
 @retry(wait=wait_random_exponential(multiplier=1, max=40), stop=stop_after_attempt(3))
-def upload_to_confluence(
-    markdown_content, title, CONFLUENCE_SPACE_ID, CONFLUENCE_PARENT_PAGE_ID
-):
+def upload_to_confluence(markdown_content: str, title: str) -> Response:
     """
     Uploads the given markdown content to Confluence.
 
     Parameters:
     - markdown_content (str): The markdown content to be uploaded.
     - title (str, optional): The title of the Confluence page.
-    - CONFLUENCE_SPACE_ID (str, optional): The space ID where the page will be created.
-    - CONFLUENCE_PARENT_PAGE_ID (str, optional): The parent ID of the page.
 
     Returns:
     - dict: The response from the Confluence API.
@@ -39,10 +37,10 @@ def upload_to_confluence(
 
     payload = json.dumps(
         {
-            "spaceId": CONFLUENCE_SPACE_ID,
+            "spaceId": constants.CONFLUENCE_SPACE_ID,
             "status": "current",
             "title": title,
-            "parentId": CONFLUENCE_PARENT_PAGE_ID,
+            "parentId": constants.CONFLUENCE_PARENT_PAGE_ID,
             "body": {"representation": "storage", "value": html_content},
         }
     )
@@ -114,7 +112,7 @@ def blockquote_string(s: str) -> str:
     return "\n".join([f"> {line}" for line in s.split("\n")])
 
 
-def replace_user_ids_with_names(s, mapping):
+def replace_user_ids_with_names(s: str, mapping: dict) -> str:
     """
     Function to replace user id with user names
     """
@@ -122,7 +120,7 @@ def replace_user_ids_with_names(s, mapping):
     pattern = r"<@(\w+)>"
 
     # Replacement function
-    def repl(match):
+    def repl(match: Match) -> str:
         user_id = match.group(1)
         return f"**<@{mapping.get(user_id, match.group(0))}>**"  # Use the original string if user_id not found in mapping
 

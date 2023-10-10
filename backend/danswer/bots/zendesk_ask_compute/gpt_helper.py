@@ -1,4 +1,7 @@
+# ruff: noqa: E501
 import textwrap
+from typing import Any
+from typing import Optional
 
 import requests
 from tenacity import retry
@@ -13,22 +16,22 @@ logger = setup_logger(constants.MODULE_NAME, constants.LOG_LEVEL)
 
 @retry(wait=wait_random_exponential(multiplier=1, max=40), stop=stop_after_attempt(3))
 def chat_completion_request(
-    endpoint,
-    api_key,
-    model,
-    messages,
-    temperature=None,
-    functions=None,
-    function_call=None,
-):
+    endpoint: str,
+    api_key: str,
+    model: str,
+    messages: list,
+    temperature: Optional[float] = None,
+    functions: Optional[list] = None,
+    function_call: Optional[dict] = None,
+) -> dict:
     headers = {
         "Content-Type": "application/json",
         "User-Agent": "ask-compute-bot",
         "Authorization": "Bearer " + api_key,
     }
-    json_data = {"model": model, "messages": messages}
-    if functions is not None:
-        json_data.update({"temperature": float(temperature)})
+    json_data: dict[str, Any] = {"model": model, "messages": messages}
+    if temperature is not None:
+        json_data.update({"temperature": temperature})
     if functions is not None:
         json_data.update({"functions": functions})
     if function_call is not None:
@@ -39,7 +42,7 @@ def chat_completion_request(
     except Exception as e:
         logger.error("Unable to generate ChatCompletion response")
         logger.error(f"Exception: {e}")
-        return e
+        raise e
 
 
 def get_thread_summary_prompt(messages: list) -> list:
@@ -81,7 +84,9 @@ def get_thread_summary_prompt(messages: list) -> list:
     return prompt
 
 
-def get_thread_summary(messages: list, model_version, model_temperature):
+def get_thread_summary(
+    messages: list, model_version: str, model_temperature: float
+) -> dict:
     # Prepare prompt for chat completions
     prompt = get_thread_summary_prompt(messages)
     # Describe functions for gpt to call

@@ -1,13 +1,50 @@
 import os
 
-SLACK_BOT_TOKEN = os.environ.get("ZENDESK_ASK_COMPUTE_BOT_SLACK_BOT_TOKEN")
-OPENAI_KEY = os.environ.get("ZENDESK_ASK_COMPUTE_BOT_OPENAI_KEY")
-OPENAI_ENDPOINT = "https://ai-gateway.zende.sk/v1/chat/completions"
-SLACK_APP_TOKEN = os.environ.get("ZENDESK_ASK_COMPUTE_BOT_SLACK_APP_TOKEN")
-CONFLUENCE_API = os.environ.get("ZENDESK_ASK_COMPUTE_BOT_CONFLUENCE_API")
-CONFLUENCE_USER = os.environ.get("ZENDESK_ASK_COMPUTE_BOT_CONFLUENCE_USER")
 
-LOG_LEVEL = os.environ.get("ZENDESK_ASK_COMPUTE_BOT_LOG_LEVEL", "info")
+def fetch_env_variable(var_name: str) -> str:
+    value = os.environ.get(var_name)
+    if value is None:
+        if var_name == "ZENDESK_ASK_COMPUTE_BOT_LOG_LEVEL":
+            return "info"
+        raise ValueError(f"{var_name} environment variable is required")
+    return value
+
+
+SLACK_BOT_TOKEN = fetch_env_variable("ZENDESK_ASK_COMPUTE_BOT_SLACK_BOT_TOKEN")
+SLACK_APP_TOKEN = fetch_env_variable("ZENDESK_ASK_COMPUTE_BOT_SLACK_APP_TOKEN")
+OPENAI_ENDPOINT = fetch_env_variable("ZENDESK_ASK_COMPUTE_BOT_OPENAI_ENDPOINT")
+OPENAI_KEY = fetch_env_variable("ZENDESK_ASK_COMPUTE_BOT_OPENAI_KEY")
+CONFLUENCE_API = fetch_env_variable("ZENDESK_ASK_COMPUTE_BOT_CONFLUENCE_API")
+CONFLUENCE_USER = fetch_env_variable("ZENDESK_ASK_COMPUTE_BOT_CONFLUENCE_USER")
+
+LOG_LEVEL = fetch_env_variable("ZENDESK_ASK_COMPUTE_BOT_LOG_LEVEL")
+
+# Value checks
+
+if SLACK_BOT_TOKEN is None:
+    raise ValueError(
+        "ZENDESK_ASK_COMPUTE_BOT_SLACK_BOT_TOKEN environment variable is required"
+    )
+if SLACK_APP_TOKEN is None:
+    raise ValueError(
+        "ZENDESK_ASK_COMPUTE_BOT_SLACK_APP_TOKEN environment variable is required"
+    )
+if OPENAI_ENDPOINT is None:
+    raise ValueError(
+        "ZENDESK_ASK_COMPUTE_BOT_OPENAI_ENDPOINT environment variable is required"
+    )
+if OPENAI_KEY is None:
+    raise ValueError(
+        "ZENDESK_ASK_COMPUTE_BOT_OPENAI_KEY environment variable is required"
+    )
+if CONFLUENCE_API is None:
+    raise ValueError(
+        "ZENDESK_ASK_COMPUTE_BOT_CONFLUENCE_API environment variable is required"
+    )
+if CONFLUENCE_USER is None:
+    raise ValueError(
+        "ZENDESK_ASK_COMPUTE_BOT_CONFLUENCE_USER environment variable is required"
+    )
 
 SUMMARY_SECTIONS = [
     "title",

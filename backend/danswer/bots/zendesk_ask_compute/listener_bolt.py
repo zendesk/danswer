@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
@@ -8,16 +9,31 @@ from slack_sdk.errors import SlackApiError
 import danswer.bots.zendesk_ask_compute.block_builder as block_builder
 import danswer.bots.zendesk_ask_compute.confluence_helper as confluence_helper
 import danswer.bots.zendesk_ask_compute.constants as constants
-from danswer.bots.zendesk_ask_compute.gpt_helper import get_thread_summary
-from danswer.bots.zendesk_ask_compute.logger import setup_logger
 from danswer.bots.slack.constants import DISLIKE_BLOCK_ACTION_ID
 from danswer.bots.slack.constants import LIKE_BLOCK_ACTION_ID
 from danswer.bots.slack.handlers.handle_feedback import handle_slack_feedback
 from danswer.bots.slack.handlers.handle_message import handle_message
+from danswer.bots.zendesk_ask_compute.gpt_helper import get_thread_summary
+from danswer.bots.zendesk_ask_compute.logger import setup_logger
 
 logger = setup_logger(constants.MODULE_NAME, constants.LOG_LEVEL)
 
 app = App(token=constants.SLACK_BOT_TOKEN, logger=logger)
+
+BOT_ID = None
+
+
+def get_bot_id(client: WebClient) -> str:
+    global BOT_ID
+
+    if BOT_ID:
+        return BOT_ID
+
+    # If not set, fetch from Slack API
+    response = client.auth_test()
+    BOT_ID = response.get("bot_id", "")
+
+    return BOT_ID
 
 
 def get_thread_messages(
@@ -70,7 +86,7 @@ def get_thread_messages(
     return messages
 
 
-def get_user_info(client: WebClient, user_id: str) -> dict:
+def get_user_info(client: WebClient, user_id: str) -> Optional[dict]:
     try:
         response = client.users_info(user=user_id)
         user = response["user"]
@@ -90,11 +106,11 @@ def get_permalink(client: WebClient, channel_id: str, message_ts: str) -> str:
         return response["permalink"]
     except SlackApiError as e:
         logger.error(f"Error getting permalink: {e.response['error']}")
-        return None
+        return ""
 
 
 @app.shortcut("summarise-thread")
-def open_summarise_thread_modal(ack, body, client, logger):
+def open_summarise_thread_modal(ack, body, client, logger) -> None:  # type: ignore
     # Acknowledge the shortcut request
     ack()
 
@@ -125,7 +141,7 @@ def open_summarise_thread_modal(ack, body, client, logger):
 
 
 @app.view("summarise-thread-config")
-def open_summary_review_modal(ack, body, client, view, logger):
+def open_summary_review_modal(ack, body, client, view, logger) -> None:  # type: ignore
     # Retrieve metadata for the original message
     view_metadata = json.loads(view.get("private_metadata"))
     # Retrieve and validate user input
@@ -133,9 +149,9 @@ def open_summary_review_modal(ack, body, client, view, logger):
     model_version = user_input["select_model_version"]["model_version"][
         "selected_option"
     ]["value"]
-    model_temperature = user_input["input_model_temperature"]["model_temperature"][
-        "value"
-    ]
+    model_temperature = float(
+        user_input["input_model_temperature"]["model_temperature"]["value"]
+    )
     # Store these inputs to view_metadata
     view_metadata["model_version"] = model_version
     view_metadata["model_temperature"] = model_temperature
@@ -196,7 +212,7 @@ def open_summary_review_modal(ack, body, client, view, logger):
 
 
 @app.action("regenerate-summary")
-def regenerate_summary(ack, body, client, logger):
+def regenerate_summary(ack, body, client, logger) -> None:  # type: ignore
     ack()
     # Get view metadata
     view_metadata = json.loads(body.get("view", {}).get("private_metadata", ""))
@@ -251,7 +267,7 @@ def regenerate_summary(ack, body, client, logger):
 
 
 @app.action("edit-summary")
-def edit_summary(ack, body, client):
+def edit_summary(ack, body, client) -> None:  # type: ignore
     ack()
     # Get view metadata
     view_metadata = json.loads(body.get("view", {}).get("private_metadata", ""))
@@ -276,7 +292,7 @@ def edit_summary(ack, body, client):
 
 
 @app.view("summary-edited")
-def update_summary_review_modal(ack, body, client, view, logger):
+def update_summary_review_modal(ack, body, client, view, logger) -> None:  # type: ignore
     view_metadata = json.loads(view.get("private_metadata"))
     # Retrieve updated summary sections
     user_input = view.get("state").get("values")
@@ -308,7 +324,7 @@ def update_summary_review_modal(ack, body, client, view, logger):
 
 
 @app.view("summary-submitted")
-def upload_file_modal(ack, body, client, view, logger):
+def upload_file_modal(ack, body, client, view, logger) -> None:  # type: ignore
     view_metadata = json.loads(view.get("private_metadata"))
     thread_summary = view_metadata.get("thread_summary", {})
 
@@ -337,12 +353,7 @@ def upload_file_modal(ack, body, client, view, logger):
     )
     title = thread_summary.get("title")
     # Get info of users that participated in the discussion
-    response = confluence_helper.upload_to_confluence(
-        markdown_content,
-        title,
-        constants.CONFLUENCE_SPACE_ID,
-        constants.CONFLUENCE_PARENT_PAGE_ID,
-    )
+    response = confluence_helper.upload_to_confluence(markdown_content, title)
     response_text = json.loads(response.text)
     # Update response to the modal
     # TODO: provide option to retry if upload failed
@@ -374,7 +385,7 @@ def upload_file_modal(ack, body, client, view, logger):
 
 
 @app.event("app_mention")
-def handle_app_mentions(body, say, logger):
+def handle_app_mentions(body, say, logger) -> None:  # type: ignore
     logger.info(body)
 
     # Get the text (content of the question), channel id and ts (timestamp) from the message event
@@ -383,7 +394,7 @@ def handle_app_mentions(body, say, logger):
     ts = body["event"]["ts"]
 
     # Get the bot user id to remove from the text
-    bot_user_id = "A05TPVAGZ5H"  # TODO: Get bot_id from body
+    bot_user_id = get_bot_id(app.client)
     mention = f"<@{bot_user_id}>"
 
     # Remove the mention from the text
@@ -392,7 +403,7 @@ def handle_app_mentions(body, say, logger):
     # If the question is empty, ignore it
     if not question:
         say(
-            text=f"Please provide a question so I can answer.",
+            text="Please provide a question so I can answer.",
             channel=channel_id,
             thread_ts=ts,
         )
@@ -400,14 +411,16 @@ def handle_app_mentions(body, say, logger):
         msg=question,
         channel=channel_id,
         message_ts_to_respond_to=ts,
+        sender_id=None,
         client=app.client,
         logger=logger,
         should_respond_with_error_msgs=True,
+        respond_every_channel=True,  # This is fine because zendesk_ask_compute only responds to app mention
     )
 
 
 @app.action(LIKE_BLOCK_ACTION_ID)
-def handle_like_button(ack, body, client):
+def handle_like_button(ack, body, client) -> None:  # type: ignore
     ack()
 
     action_id = LIKE_BLOCK_ACTION_ID
@@ -427,7 +440,7 @@ def handle_like_button(ack, body, client):
 
 
 @app.action(DISLIKE_BLOCK_ACTION_ID)
-def handle_dislike_button(ack, body, client):
+def handle_dislike_button(ack, body, client) -> None:  # type: ignore
     ack()
 
     action_id = DISLIKE_BLOCK_ACTION_ID
