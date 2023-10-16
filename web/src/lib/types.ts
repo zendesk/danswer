@@ -20,6 +20,7 @@ export type ValidSources =
   | "notion"
   | "guru"
   | "zendesk"
+  | "gong"
   | "zulip"
   | "linear"
   | "hubspot"
@@ -96,6 +97,10 @@ export interface SlabConfig {
 }
 
 export interface GuruConfig {}
+
+export interface GongConfig {
+  workspaces?: string[];
+}
 
 export interface FileConfig {
   file_locations: string[];
@@ -210,6 +215,11 @@ export interface ZulipCredentialJson {
 export interface GuruCredentialJson {
   guru_user: string;
   guru_user_token: string;
+}
+
+export interface GongCredentialJson {
+  gong_access_key: string;
+  gong_access_key_secret: string;
 }
 
 export interface LinearCredentialJson {

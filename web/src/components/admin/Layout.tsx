@@ -14,7 +14,6 @@ import {
   JiraIcon,
   SlabIcon,
   NotionIcon,
-  ZendeskIcon,
   ZulipIcon,
   ProductboardIcon,
   LinearIcon,
@@ -26,13 +25,8 @@ import {
 } from "@/components/icons/icons";
 import { getAuthDisabledSS, getCurrentUserSS } from "@/lib/userSS";
 import { redirect } from "next/navigation";
-import { Layout } from "@/components/admin/Layout";
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export async function Layout({ children }: { children: React.ReactNode }) {
   const [authDisabled, user] = await Promise.all([
     getAuthDisabledSS(),
     getCurrentUserSS(),
@@ -173,15 +167,6 @@ export default async function AdminLayout({
                 {
                   name: (
                     <div className="flex">
-                      <ZendeskIcon size={16} />
-                      <div className="ml-1">Zendesk</div>
-                    </div>
-                  ),
-                  link: "/admin/connectors/zendesk",
-                },
-                {
-                  name: (
-                    <div className="flex">
                       <ZulipIcon size={16} />
                       <div className="ml-1">Zulip</div>
                     </div>
@@ -290,5 +275,4 @@ export default async function AdminLayout({
       </div>
     </div>
   );
-  return await Layout({ children });
 }

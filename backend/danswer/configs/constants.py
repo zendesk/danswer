@@ -61,6 +61,7 @@ class DocumentSource(str, Enum):
     ZENDESK = "zendesk"
     LINEAR = "linear"
     HUBSPOT = "hubspot"
+    GONG = "gong"
 
 
 class DocumentIndexType(str, Enum):
