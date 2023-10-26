@@ -23,6 +23,7 @@ from danswer.connectors.slab.connector import SlabConnector
 from danswer.connectors.slack.connector import SlackLoadConnector
 from danswer.connectors.slack.connector import SlackPollConnector
 from danswer.connectors.web.connector import WebConnector
+from danswer.connectors.zendesk.connector import ZendeskConnector
 from danswer.connectors.zulip.connector import ZulipConnector
 
 
@@ -50,6 +51,7 @@ def identify_connector_class(
         DocumentSource.SLAB: SlabConnector,
         DocumentSource.NOTION: NotionConnector,
         DocumentSource.ZULIP: ZulipConnector,
+        DocumentSource.ZENDESK: ZendeskConnector,
         DocumentSource.GURU: GuruConnector,
         DocumentSource.LINEAR: LinearConnector,
         DocumentSource.HUBSPOT: HubSpotConnector,

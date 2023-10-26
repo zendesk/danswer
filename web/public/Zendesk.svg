@@ -1,0 +1,19 @@
+<<<<<<< HEAD
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 258.79">
+    <defs>
+        <style>.cls-1{fill:#FEFAF2;}</style>
+    </defs>
+    <title>Zendesk Logo</title>
+    <polygon class="cls-1" points="173.71 93.22 173.71 206.08 80.23 206.08 173.71 93.22"/>
+    <path class="cls-1" d="M173.71,52.71a46.74,46.74,0,0,1-93.48,0Z"/>
+    <polygon class="cls-1" points="189.11 165.57 189.11 52.71 282.6 52.71 189.11 165.57"/>
+    <path class="cls-1" d="M245.75,192.7a2.15,2.15,0,0,0-2.25,1.88h4.35A2,2,0,0,0,245.75,192.7Z"/>
+    <path class="cls-1" d="M235.85,159.33a46.75,46.75,0,0,0-46.74,46.75h93.48A46.74,46.74,0,0,0,235.85,159.33Z"/>
+=======
+<svg width="44" height="34" viewBox="0 0 44 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M20.3242 9.34534V33.9978H-0.000854492L20.3242 9.34534Z" fill="#FEFAF2"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M20.3243 0C20.3243 5.63898 15.7742 10.2098 10.1607 10.2098C4.54728 10.2098 -0.000732422 5.63898 -0.000732422 0H20.3243Z" fill="#FEFAF2"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M23.6749 33.9985C23.6749 28.3595 28.225 23.7887 33.8385 23.7887C39.452 23.7887 44 28.3595 44 33.9985H23.6749Z" fill="#FEFAF2"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M23.6749 24.6503V0H44L23.6749 24.6503Z" fill="#FEFAF2"/>
+>>>>>>> 8edf656022814ed366086218a5c3d45655d9a626
+</svg>

@@ -26,6 +26,7 @@ const sources: Source[] = [
   { displayName: "Gong", internalName: "gong" },
   { displayName: "File", internalName: "file" },
   { displayName: "Notion", internalName: "notion" },
+  { displayName: "Zendesk", internalName: "zendesk" },
   { displayName: "Zulip", internalName: "zulip" },
   { displayName: "Linear", internalName: "linear" },
   { displayName: "HubSpot", internalName: "hubspot" },
